@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Datalist;
 
 use Nette\Application\UI\Control;
-use Nette\ComponentModel\IComponent;
 use Nette\Utils\Paginator;
 use StORM\Collection;
 use StORM\ICollection;
@@ -499,11 +498,6 @@ class Datalist extends Control
 		$this->nestingCallback = $callback;
 	}
 
-	public function getFilterForm(): IComponent
-	{
-		return $this['filterForm'];
-	}
-	
 	/**
 	 * @param \Datalist\Datalist $datalist
 	 * @param mixed[] $params
@@ -591,27 +585,5 @@ class Datalist extends Control
 		}
 
 		return $items;
-	}
-	
-	/**
-	 * @param string $name
-	 * @param mixed[] $args
-	 * @return mixed
-	 */
-	public function __call(string $name, array $args)
-	{
-		$prefix = 'addFilter';
-		$controlName = (string)\substr($name, \strlen($prefix));
-		$form = $this->getFilterForm();
-
-		if ($prefix === \substr($name, 0, \strlen($prefix)) && \method_exists($form, 'add' . $controlName)) {
-			$method = 'add' . $controlName;
-
-			$this->addFilterExpression($args[2], \array_shift($args), \array_shift($args));
-
-			return $form->$method(...$args);
-		}
-		
-		return parent::__call($name, $args);
 	}
 }

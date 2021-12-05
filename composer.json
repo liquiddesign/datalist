@@ -12,6 +12,9 @@
 		"nette/component-model":"^3.0",
 		"liquiddesign/storm": "~1.0"
 	},
+	"suggest": {
+		"nette/forms": "Allows to use Nette Forms as filter forms for Datalist"
+	},
 	"require-dev": 
 	{
 		"nette/forms":"^3.0",

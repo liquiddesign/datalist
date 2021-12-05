@@ -1,0 +1,30 @@
+{
+	"name": "liquiddesign/datalist",
+	"description": "⊞ Nette komponenta pro hromadný výpis dat, stránkování, filtrování, řazení a vše okolo",
+	"license": "MIT",
+	"autoload": {
+		"psr-4": {"Datalist\\": "src/"}
+	},
+	"require" :
+	{
+		"php":">=7.4",
+		"nette/application":"^3.0",
+		"nette/component-model":"^3.0",
+		"liquiddesign/storm": "~1.0"
+	},
+	"require-dev": 
+	{
+		"nette/forms":"^3.0",
+		"nette/tester":"*",
+		"tracy/tracy":"*",
+		"composer/composer": "*",
+		"liquiddesign/codestyle": "@dev",
+		"phpstan/phpstan": "*"
+	},
+	"scripts": {
+		"phpstan": "phpstan analyse --memory-limit 1G -c phpstan.neon",
+		"phpcs": "phpcs --standard=ruleset.xml --ignore=assets src",
+		"phpcsfix": "phpcbf --standard=ruleset.xml --ignore=assets src",
+		"tester": "tester tests/Tests/*.phpt  -c tests/php.ini --setup tests/setup.php"
+	}
+}

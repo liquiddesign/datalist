@@ -5,16 +5,28 @@ declare(strict_types=1);
 namespace Datalist\Bridges\DatalistForms;
 
 use Datalist\Datalist;
+use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\BaseControl;
 use Nette\Forms\Controls\Button;
 use Nette\InvalidArgumentException;
 
 class Helpers
 {
-	public function makeFilterForm(\Nette\Application\UI\Form $form): void
+	public const FILTER_KEY = 'filter';
+	
+	public function makeFilterForm(\Nette\Application\UI\Form $form, bool $filterInput = true, bool $removeSignalKey = false): void
 	{
-		$form->setMethod('get');
-		$form->addHidden('filter', 1)->setOmitted(true);
+		$form->setMethod($form::GET);
+		
+		if ($filterInput) {
+			$form->addHidden(self::FILTER_KEY, 1)->setOmitted(true);
+		}
+		
+		if ($removeSignalKey) {
+			$form->onRender[] = function ($form): void {
+				$form->removeComponent($form[Presenter::SIGNAL_KEY]);
+			};
+		}
 		
 		$form->onAnchor[] = function (\Nette\Application\UI\Form $form): void {
 			/** @var \Datalist\Datalist $datalist */
@@ -33,7 +45,12 @@ class Helpers
 						$submit = true;
 					}
 				} else {
-					$component->setHtmlAttribute('name', "$datalistName-$name");
+					if ($component->getParent() instanceof \Nette\Forms\Container) {
+						$parentName = $component->getParent()->getName();
+						$component->setHtmlAttribute('name', "$datalistName-$parentName" . "[$name]");
+					} else {
+						$component->setHtmlAttribute('name', "$datalistName-$name");
+					}
 				}
 			}
 		};
@@ -48,6 +65,10 @@ class Helpers
 				$component = $form->getComponent($filter, false);
 				
 				if (!isset($form[$filter]) || !$component || $datalist->getFilterDefaultValue($filter) === $value) {
+					continue;
+				}
+				
+				if (!($component instanceof BaseControl)) {
 					continue;
 				}
 				

@@ -6,8 +6,10 @@ namespace Datalist\Bridges\DatalistForms;
 
 use Datalist\Datalist;
 use Nette\Application\UI\Presenter;
+use Nette\Forms\Container;
 use Nette\Forms\Controls\BaseControl;
 use Nette\Forms\Controls\Button;
+use Nette\Forms\Form;
 use Nette\InvalidArgumentException;
 
 class Helpers
@@ -45,7 +47,7 @@ class Helpers
 						$submit = true;
 					}
 				} else {
-					if ($component->getParent() instanceof \Nette\Forms\Container) {
+					if (!$component->getParent() instanceof Form && $component->getParent() instanceof Container) {
 						$parentName = $component->getParent()->getName();
 						$component->setHtmlAttribute('name', "$datalistName-$parentName" . "[$name]");
 					} else {

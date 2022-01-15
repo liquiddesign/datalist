@@ -16,7 +16,7 @@ class Helpers
 {
 	public const FILTER_KEY = 'filter';
 	
-	public function makeFilterForm(\Nette\Application\UI\Form $form, bool $filterInput = true, bool $removeSignalKey = false): void
+	public function makeFilterForm(\Nette\Application\UI\Form $form, bool $filterInput = false, bool $removeSignalKey = false): void
 	{
 		$form->setMethod($form::GET);
 		

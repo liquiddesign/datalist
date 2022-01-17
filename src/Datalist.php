@@ -84,7 +84,7 @@ class Datalist extends Control
 	protected array $allowedRepositoryFilters = [];
 	
 	/**
-	 * @var mixed[]
+	 * @var array<string, mixed>
 	 */
 	protected array $filters = [];
 	

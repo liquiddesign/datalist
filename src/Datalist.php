@@ -305,7 +305,7 @@ class Datalist extends Control
 	}
 	
 	/**
-	 * @return callable[]
+	 * @return array<string, mixed>
 	 */
 	public function getFilters(): array
 	{

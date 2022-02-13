@@ -23,12 +23,12 @@ class Datalist extends Control
 	public array $onLoad = [];
 	
 	/**
-	 * @var array<callable(static, mixed[]): void> Occurs before state is loaded
+	 * @var array<callable(static , array<mixed> ): void> Occurs before state is loaded
 	 */
 	public array $onLoadState = [];
 	
 	/**
-	 * @var array<callable(static, mixed[]): void> Occurs after state is save
+	 * @var array<callable(static , array<mixed> ): void> Occurs after state is save
 	 */
 	public array $onSaveState = [];
 	
@@ -54,12 +54,12 @@ class Datalist extends Control
 	protected string $defaultDirection = 'ASC';
 	
 	/**
-	 * @var string[]
+	 * @var array<string>
 	 */
 	protected array $secondaryOrder = [];
 	
 	/**
-	 * @var string[]
+	 * @var array<string>
 	 */
 	protected array $allowedOrderColumn = [];
 	
@@ -74,12 +74,12 @@ class Datalist extends Control
 	protected array $filterExpressions = [];
 	
 	/**
-	 * @var mixed[]|null[]
+	 * @var array<mixed>|array<null>
 	 */
 	protected array $filterDefaultValue = [];
 	
 	/**
-	 * @var string[]
+	 * @var array<string>
 	 */
 	protected array $allowedRepositoryFilters = [];
 	
@@ -102,7 +102,7 @@ class Datalist extends Control
 	protected ?ICollection $filteredSource = null;
 	
 	/**
-	 * @var \StORM\Entity[]|object[]|null
+	 * @var array<\StORM\Entity>|array<object>|null
 	 */
 	protected ?array $itemsOnPage = null;
 	
@@ -117,7 +117,7 @@ class Datalist extends Control
 	protected $itemCountCallback = null;
 	
 	/**
-	 * @var bool[]
+	 * @var array<bool>
 	 */
 	private array $statefulFilters = [];
 	
@@ -179,7 +179,7 @@ class Datalist extends Control
 	}
 	
 	/**
-	 * @param string[] $orderBy
+	 * @param array<string> $orderBy
 	 */
 	public function setSecondaryOrder(array $orderBy): void
 	{
@@ -225,7 +225,7 @@ class Datalist extends Control
 	}
 	
 	/**
-	 * @param string[] $columns
+	 * @param array<string> $columns
 	 * @param bool $merge
 	 */
 	public function setAllowedOrderColumns(array $columns, bool $merge = false): void
@@ -239,7 +239,7 @@ class Datalist extends Control
 	}
 	
 	/**
-	 * @param string[] $listToRemove
+	 * @param array<string> $listToRemove
 	 */
 	public function removeOrderExpressions(array $listToRemove): void
 	{
@@ -265,7 +265,7 @@ class Datalist extends Control
 	}
 	
 	/**
-	 * @param string[] $listToRemove
+	 * @param array<string> $listToRemove
 	 */
 	public function removeFilterExpressions(array $listToRemove): void
 	{
@@ -276,7 +276,7 @@ class Datalist extends Control
 	}
 	
 	/**
-	 * @param string[] $list
+	 * @param array<string> $list
 	 * @param bool $merge
 	 */
 	public function setAllowedRepositoryFilters(array $list, bool $merge = false): void
@@ -285,7 +285,7 @@ class Datalist extends Control
 	}
 	
 	/**
-	 * @param mixed[] $filters
+	 * @param array<mixed> $filters
 	 */
 	public function setFilters(?array $filters): void
 	{
@@ -338,7 +338,7 @@ class Datalist extends Control
 	}
 	
 	/**
-	 * @param mixed[] $params
+	 * @param array<mixed> $params
 	 */
 	public function loadState(array $params): void
 	{
@@ -361,7 +361,7 @@ class Datalist extends Control
 	}
 	
 	/**
-	 * @param mixed[] $params
+	 * @param array<mixed> $params
 	 */
 	public function saveState(array &$params): void
 	{
@@ -477,7 +477,7 @@ class Datalist extends Control
 	}
 	
 	/**
-	 * @return \StORM\Entity[]|object[]
+	 * @return array<\StORM\Entity>|array<object>
 	 */
 	public function getItemsOnPage(): array
 	{
@@ -507,8 +507,8 @@ class Datalist extends Control
 	
 	/**
 	 * @param \Datalist\Datalist $datalist
-	 * @param mixed[] $params
-	 * @param \Nette\Http\SessionSection|mixed[] $section
+	 * @param array<mixed> $params
+	 * @param \Nette\Http\SessionSection<mixed> $section
 	 */
 	public static function loadSession(Datalist $datalist, array $params, \Nette\Http\SessionSection $section): void
 	{
@@ -539,8 +539,8 @@ class Datalist extends Control
 	
 	/**
 	 * @param \Datalist\Datalist $datalist
-	 * @param mixed[] $params
-	 * @param \Nette\Http\SessionSection|mixed[] $section
+	 * @param array<mixed> $params
+	 * @param \Nette\Http\SessionSection<mixed> $section
 	 */
 	public static function saveSession(Datalist $datalist, array $params, \Nette\Http\SessionSection $section): void
 	{
@@ -574,7 +574,7 @@ class Datalist extends Control
 	/**
 	 * @param \StORM\ICollection $source
 	 * @param \StORM\Entity|object|null $parent
-	 * @return \StORM\Entity[]|object[]
+	 * @return array<\StORM\Entity>|array<object>
 	 */
 	protected function getNestedSource(ICollection $source, ?object $parent): array
 	{

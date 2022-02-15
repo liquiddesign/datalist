@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Datalist;
 
 use Nette\Application\UI\Control;
+use Nette\Utils\Arrays;
 use Nette\Utils\Paginator;
 use StORM\Collection;
 use StORM\ICollection;
@@ -445,6 +446,16 @@ class Datalist extends Control
 		}
 		
 		return $this->filteredSource = $filteredSource;
+	}
+	
+	public function getFirstItem(): ?object
+	{
+		return $this->getPaginator()->isFirst() ? Arrays::first($this->getItemsOnPage()) : $this->getFilteredSource()->setOrderBy([$this->getOrder() => $this->getDirection()])->first();
+	}
+	
+	public function getLastItem(): ?object
+	{
+		return $this->getPaginator()->isLast() ? Arrays::last($this->getItemsOnPage()) : $this->getFilteredSource()->setOrderBy([$this->getOrder() => $this->getDirection(true)])->first();
 	}
 	
 	public function setItemCountCallback(callable $callback): void

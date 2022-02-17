@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Datalist;
 
@@ -11,6 +11,7 @@ use StORM\Collection;
 use StORM\ICollection;
 
 /**
+ * @template T of object
  * @property array<callable(static): void> $onAnchor
  * @method onLoad(\StORM\ICollection $source)
  * @method onSaveState(\Datalist\Datalist $param, array $params)
@@ -24,12 +25,12 @@ class Datalist extends Control
 	public array $onLoad = [];
 	
 	/**
-	 * @var array<callable(static , array<mixed> ): void> Occurs before state is loaded
+	 * @var array<callable(static, array<mixed> ): void> Occurs before state is loaded
 	 */
 	public array $onLoadState = [];
 	
 	/**
-	 * @var array<callable(static , array<mixed> ): void> Occurs after state is save
+	 * @var array<callable(static, array<mixed> ): void> Occurs after state is save
 	 */
 	public array $onSaveState = [];
 	
@@ -98,14 +99,20 @@ class Datalist extends Control
 	
 	protected ?Paginator $paginator = null;
 	
-	protected ICollection $source;
+	/**
+	 * @var \StORM\ICollection<T>
+	 */
+	protected ICollection $collection;
 	
+	/**
+	 * @var \StORM\ICollection<T>|null
+	 */
 	protected ?ICollection $filteredSource = null;
 	
 	/**
-	 * @var array<\StORM\Entity>|array<object>|null
+	 * @var array<string|int, T>|null
 	 */
-	protected ?array $itemsOnPage = null;
+	protected ?array $objectsOnPage = null;
 	
 	/**
 	 * @var callable|null
@@ -122,9 +129,15 @@ class Datalist extends Control
 	 */
 	private array $statefulFilters = [];
 	
-	public function __construct(ICollection $source, ?int $defaultOnPage = null, ?string $defaultOrderExpression = null, ?string $defaultOrderDir = null)
+	/**
+	 * @param \StORM\ICollection<T> $collection
+	 * @param int|null $defaultOnPage
+	 * @param string|null $defaultOrderExpression
+	 * @param string|null $defaultOrderDir
+	 */
+	public function __construct(ICollection $collection, ?int $defaultOnPage = null, ?string $defaultOrderExpression = null, ?string $defaultOrderDir = null)
 	{
-		$this->source = $source;
+		$this->collection = $collection;
 		
 		$this->itemCountCallback = function (ICollection $filteredSource) {
 			return $filteredSource->count();
@@ -138,19 +151,19 @@ class Datalist extends Control
 			$this->setDefaultOrder($defaultOrderExpression, $defaultOrderDir ?: $this->defaultDirection);
 		}
 		
-		if (!($source instanceof Collection)) {
+		if (!($collection instanceof Collection)) {
 			return;
 		}
 		
-		foreach ($source->getRepository()->getStructure()->getColumns(true) as $column) {
+		foreach ($collection->getRepository()->getStructure()->getColumns(true) as $column) {
 			if ($column->hasMutations()) {
-				$this->allowedOrderColumn[$column->getPropertyName()] = $source->getPrefix(true) . $column->getName() . $source->getConnection()->getMutationSuffix();
+				$this->allowedOrderColumn[$column->getPropertyName()] = $collection->getPrefix(true) . $column->getName() . $collection->getConnection()->getMutationSuffix();
 				
-				foreach (\array_keys($source->getConnection()->getAvailableMutations()) as $suffix) {
-					$this->allowedOrderColumn[$column->getPropertyName() . $suffix] = $source->getPrefix(true) . $column->getName() . $suffix;
+				foreach (\array_keys($collection->getConnection()->getAvailableMutations()) as $suffix) {
+					$this->allowedOrderColumn[$column->getPropertyName() . $suffix] = $collection->getPrefix(true) . $column->getName() . $suffix;
 				}
 			} else {
-				$this->allowedOrderColumn[$column->getPropertyName()] = $source->getPrefix(true) . $column->getName();
+				$this->allowedOrderColumn[$column->getPropertyName()] = $collection->getPrefix(true) . $column->getName();
 			}
 		}
 	}
@@ -192,6 +205,7 @@ class Datalist extends Control
 		if ($this->order === null) {
 			$orderDirection = $this->defaultDirection;
 		} else {
+			// phpcs:ignore
 			@[$name, $orderDirection] = \explode('-', $this->order);
 			unset($name);
 		}
@@ -209,6 +223,7 @@ class Datalist extends Control
 			return $this->defaultOrder;
 		}
 		
+		// phpcs:ignore
 		@[$name, $direction] = \explode('-', $this->order);
 		unset($direction);
 		
@@ -371,7 +386,7 @@ class Datalist extends Control
 		$this->onSaveState($this, $params);
 		
 		if ($this->autoCanonicalize) {
-			if (isset($params['onpage']) && $this->defaultOnPage !== null && $this->defaultOnPage === (int)$params['onpage']) {
+			if (isset($params['onpage']) && $this->defaultOnPage === (int) $params['onpage']) {
 				$params['onpage'] = null;
 			}
 			
@@ -379,7 +394,7 @@ class Datalist extends Control
 				$params['order'] = null;
 			}
 			
-			if (isset($params['page']) && (int)$params['page'] === 1) {
+			if (isset($params['page']) && (int) $params['page'] === 1) {
 				$params['page'] = null;
 			}
 		}
@@ -400,18 +415,44 @@ class Datalist extends Control
 		$this->autoCanonicalize = $enabled;
 	}
 	
+	/**
+	 * @deprecated use getCollection() instead
+	 * @param bool $newInstance
+	 */
 	public function getSource(bool $newInstance = true): ICollection
 	{
-		return $newInstance ? clone $this->source : $this->source;
+		return $this->getCollection($newInstance);
 	}
 	
+	/**
+	 * @deprecated use gettFiltereCollection() instead
+	 * @param bool $newInstance
+	 */
 	public function getFilteredSource(bool $newInstance = true): ICollection
+	{
+		return $this->getFilteredCollection($newInstance);
+	}
+	
+	/**
+	 * @param bool $newInstance
+	 * @return \StORM\ICollection<T>
+	 */
+	public function getCollection(bool $newInstance = true): ICollection
+	{
+		return $newInstance ? clone $this->collection : $this->collection;
+	}
+	
+	/**
+	 * @param bool $newInstance
+	 * @return \StORM\ICollection<T>
+	 */
+	public function getFilteredCollection(bool $newInstance = true): ICollection
 	{
 		if ($this->filteredSource && !$newInstance) {
 			return $this->filteredSource;
 		}
 		
-		$filteredSource = $this->getSource();
+		$filteredSource = $this->getCollection();
 		
 		// FILTER
 		foreach ($this->filters as $name => $value) {
@@ -448,14 +489,40 @@ class Datalist extends Control
 		return $this->filteredSource = $filteredSource;
 	}
 	
-	public function getFirstItem(): ?object
+	/**
+	 * @return T|null
+	 */
+	public function getFirstObject(): ?object
 	{
-		return $this->getPaginator()->isFirst() ? Arrays::first($this->getItemsOnPage()) : $this->getFilteredSource()->setOrderBy([$this->getOrder() => $this->getDirection()])->first();
+		if ($this->getPaginator()->isFirst()) {
+			return Arrays::first($this->getObjectsOnPage());
+		}
+		
+		$collection = $this->getFilteredCollection();
+		
+		if ($this->getOrder()) {
+			$collection->setOrderBy([$this->getOrder() => $this->getDirection()]);
+		}
+		
+		return $collection->first();
 	}
 	
-	public function getLastItem(): ?object
+	/**
+	 * @return T|null
+	 */
+	public function getLastObject(): ?object
 	{
-		return $this->getPaginator()->isLast() ? Arrays::last($this->getItemsOnPage()) : $this->getFilteredSource()->setOrderBy([$this->getOrder() => $this->getDirection(true)])->first();
+		if ($this->getPaginator()->isLast()) {
+			return Arrays::last($this->getObjectsOnPage());
+		}
+		
+		$collection = $this->getFilteredCollection();
+		
+		if ($this->getOrder()) {
+			$collection->setOrderBy([$this->getOrder() => $this->getDirection(true)]);
+		}
+		
+		return $collection->first();
 	}
 	
 	public function setItemCountCallback(callable $callback): void
@@ -474,7 +541,7 @@ class Datalist extends Control
 		$this->paginator->setPage($this->getPage());
 		
 		if ($this->itemCountCallback !== null) {
-			$this->paginator->setItemCount(\call_user_func($this->itemCountCallback, $this->getFilteredSource()));
+			$this->paginator->setItemCount(\call_user_func($this->itemCountCallback, $this->getFilteredCollection()));
 		}
 		
 		$this->paginator->setItemsPerPage($this->getOnPage() ?: \intval($this->paginator->getItemCount()));
@@ -488,15 +555,15 @@ class Datalist extends Control
 	}
 	
 	/**
-	 * @return array<\StORM\Entity>|array<object>
+	 * @return array<string|int, T>
 	 */
-	public function getItemsOnPage(): array
+	public function getObjectsOnPage(): array
 	{
-		if ($this->itemsOnPage !== null) {
-			return $this->itemsOnPage;
+		if ($this->objectsOnPage !== null) {
+			return $this->objectsOnPage;
 		}
 		
-		$source = $this->getFilteredSource();
+		$source = $this->getFilteredCollection();
 		
 		if ($this->getOnPage()) {
 			$source->setPage($this->getPage(), $this->getOnPage());
@@ -505,10 +572,19 @@ class Datalist extends Control
 		$this->onLoad($source);
 		
 		
-		$this->itemsOnPage = $this->nestingCallback && !$this->filters
-			? $this->getNestedSource($source, null) : ($this->outputFilter ? \array_map($this->outputFilter, $source->toArray()) : $source->toArray());
+		$this->objectsOnPage = $this->nestingCallback && !$this->filters
+			? $this->getNestedCollection($source, null) : ($this->outputFilter ? \array_map($this->outputFilter, $source->toArray()) : $source->toArray());
 		
-		return $this->itemsOnPage;
+		return $this->objectsOnPage;
+	}
+	
+	/**
+	 * @deprecated Use getObjectsOnPage instead
+	 * @return array<\StORM\Entity>|array<object>
+	 */
+	public function getItemsOnPage(): array
+	{
+		return $this->getObjectsOnPage();
 	}
 	
 	public function setNestingCallback(callable $callback): void
@@ -587,7 +663,7 @@ class Datalist extends Control
 	 * @param \StORM\Entity|object|null $parent
 	 * @return array<\StORM\Entity>|array<object>
 	 */
-	protected function getNestedSource(ICollection $source, ?object $parent): array
+	protected function getNestedCollection(ICollection $source, ?object $parent): array
 	{
 		if ($this->nestingCallback === null) {
 			throw new \DomainException('Nesting callback is not set');
@@ -599,7 +675,7 @@ class Datalist extends Control
 		/* @phpstan-ignore-next-line */
 		foreach ($source as $key => $item) {
 			$items[$key] = $item;
-			$items = \array_merge($items, $this->getNestedSource($this->getFilteredSource(true), $item));
+			$items = \array_merge($items, $this->getNestedCollection($this->getFilteredCollection(true), $item));
 		}
 		
 		return $items;

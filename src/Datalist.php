@@ -456,7 +456,7 @@ class Datalist extends Control
 		
 		// FILTER
 		foreach ($this->filters as $name => $value) {
-			if ($filteredSource instanceof Collection && !isset($this->filterExpressions[$name]) && \in_array($name, $this->allowedRepositoryFilters)) {
+			if ($filteredSource instanceof Collection && !isset($this->filterExpressions[$name]) && Arrays::contains($this->allowedRepositoryFilters, $name)) {
 				$filteredSource->filter([$name => $value]);
 			}
 			

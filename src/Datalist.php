@@ -214,7 +214,7 @@ class Datalist extends Control
 			return $orderDirection === 'ASC' ? 'DESC' : 'ASC';
 		}
 		
-		return $orderDirection;
+		return $orderDirection === 'ASC' ? 'ASC' : 'DESC';
 	}
 	
 	public function getOrder(): ?string

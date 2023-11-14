@@ -10,7 +10,7 @@
 		"php":">=7.4",
 		"nette/application":"^3.0",
 		"nette/component-model":"^3.0",
-		"liquiddesign/storm": "~1.0"
+		"liquiddesign/storm": "~1.2.1"
 	},
 	"suggest": {
 		"nette/forms": "Allows to use Nette Forms as filter forms for Datalist"

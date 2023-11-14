@@ -9,19 +9,19 @@ use Nette\Utils\Arrays;
 use Nette\Utils\Paginator;
 use Nette\Utils\Strings;
 use StORM\Collection;
-use StORM\ICollection;
+use StORM\ISearchableCollection;
 
 /**
  * @template T of object
  * @property array<callable(static): void> $onAnchor
- * @method onLoad(\StORM\ICollection $source)
+ * @method onLoad(\StORM\ISearchableCollection $source)
  * @method onSaveState(\Datalist\Datalist $param, array $params)
  * @method onLoadState(\Datalist\Datalist $param, array $params)
  */
 class Datalist extends Control
 {
 	/**
-	 * @var array<callable(\StORM\ICollection): void> Occurs before data is load
+	 * @var array<callable(\StORM\ISearchableCollection): void> Occurs before data is load
 	 */
 	public array $onLoad = [];
 	
@@ -101,14 +101,14 @@ class Datalist extends Control
 	protected ?Paginator $paginator = null;
 	
 	/**
-	 * @var \StORM\ICollection<T>
+	 * @var \StORM\ISearchableCollection<T>
 	 */
-	protected ICollection $collection;
+	protected ISearchableCollection $collection;
 	
 	/**
-	 * @var \StORM\ICollection<T>|null
+	 * @var \StORM\ISearchableCollection<T>|null
 	 */
-	protected ?ICollection $filteredSource = null;
+	protected ?ISearchableCollection $filteredSource = null;
 	
 	/**
 	 * @var array<string|int, T>|null
@@ -131,16 +131,16 @@ class Datalist extends Control
 	private array $statefulFilters = [];
 	
 	/**
-	 * @param \StORM\ICollection<T> $collection
+	 * @param \StORM\ISearchableCollection<T> $collection
 	 * @param int|null $defaultOnPage
 	 * @param string|null $defaultOrderExpression
 	 * @param string|null $defaultOrderDir
 	 */
-	public function __construct(ICollection $collection, ?int $defaultOnPage = null, ?string $defaultOrderExpression = null, ?string $defaultOrderDir = null)
+	public function __construct(ISearchableCollection $collection, ?int $defaultOnPage = null, ?string $defaultOrderExpression = null, ?string $defaultOrderDir = null)
 	{
 		$this->collection = $collection;
 		
-		$this->itemCountCallback = function (ICollection $filteredSource) {
+		$this->itemCountCallback = function (ISearchableCollection $filteredSource) {
 			return $filteredSource->count();
 		};
 		
@@ -420,34 +420,34 @@ class Datalist extends Control
 	 * @deprecated use getCollection() instead
 	 * @param bool $newInstance
 	 */
-	public function getSource(bool $newInstance = true): ICollection
+	public function getSource(bool $newInstance = true): ISearchableCollection
 	{
 		return $this->getCollection($newInstance);
 	}
 	
 	/**
-	 * @deprecated use gettFiltereCollection() instead
+	 * @deprecated use getFiltereCollection() instead
 	 * @param bool $newInstance
 	 */
-	public function getFilteredSource(bool $newInstance = true): ICollection
+	public function getFilteredSource(bool $newInstance = true): ISearchableCollection
 	{
 		return $this->getFilteredCollection($newInstance);
 	}
 	
 	/**
 	 * @param bool $newInstance
-	 * @return \StORM\ICollection<T>
+	 * @return \StORM\ISearchableCollection<T>
 	 */
-	public function getCollection(bool $newInstance = true): ICollection
+	public function getCollection(bool $newInstance = true): ISearchableCollection
 	{
 		return $newInstance ? clone $this->collection : $this->collection;
 	}
 	
 	/**
 	 * @param bool $newInstance
-	 * @return \StORM\ICollection<T>
+	 * @return \StORM\ISearchableCollection<T>
 	 */
-	public function getFilteredCollection(bool $newInstance = true): ICollection
+	public function getFilteredCollection(bool $newInstance = true): ISearchableCollection
 	{
 		if ($this->filteredSource && !$newInstance) {
 			return $this->filteredSource;
@@ -571,8 +571,7 @@ class Datalist extends Control
 		}
 		
 		$this->onLoad($source);
-		
-		
+
 		$this->objectsOnPage = $this->nestingCallback && !$this->filters
 			? $this->getNestedCollection($source, null) : ($this->outputFilter ? \array_map($this->outputFilter, $source->toArray()) : $source->toArray());
 		
@@ -660,11 +659,11 @@ class Datalist extends Control
 	}
 	
 	/**
-	 * @param \StORM\ICollection $source
+	 * @param \StORM\ISearchableCollection $source
 	 * @param \StORM\Entity|object|null $parent
 	 * @return array<\StORM\Entity>|array<object>
 	 */
-	protected function getNestedCollection(ICollection $source, ?object $parent): array
+	protected function getNestedCollection(ISearchableCollection $source, ?object $parent): array
 	{
 		if ($this->nestingCallback === null) {
 			throw new \DomainException('Nesting callback is not set');

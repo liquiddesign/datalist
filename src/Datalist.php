@@ -249,6 +249,11 @@ class Datalist extends Control
 	{
 		$this->allowedOrderColumn = $merge ? $this->allowedOrderColumn + $columns : $columns;
 	}
+
+	public function isAllowedOrderColumn(string $column): bool
+	{
+		return isset($this->allowedOrderColumn[$column]);
+	}
 	
 	public function addOrderExpression(string $name, callable $callback): void
 	{
@@ -476,7 +481,7 @@ class Datalist extends Control
 				\call_user_func_array($this->orderExpressions[$this->getOrder()], [$filteredSource, $this->getDirection()]);
 			}
 			
-			if (isset($this->allowedOrderColumn[$this->getOrder()])) {
+			if ($this->isAllowedOrderColumn($this->getOrder())) {
 				$filteredSource->orderBy([$this->allowedOrderColumn[$this->getOrder()] => $this->getDirection()]);
 			}
 			

@@ -2,6 +2,8 @@
 	"name": "liquiddesign/datalist",
 	"description": "⊞ Nette komponenta pro hromadný výpis dat, stránkování, filtrování, řazení a vše okolo",
 	"license": "MIT",
+	"prefer-stable": true,
+	"minimum-stability": "dev",
 	"autoload": {
 		"psr-4": {"Datalist\\": "src/"}
 	},
@@ -10,7 +12,7 @@
 		"php":">=8.0",
 		"nette/application":"^3.0",
 		"nette/component-model":"^3.0",
-		"liquiddesign/storm": "~1.2.1"
+		"liquiddesign/storm": "~2.0"
 	},
 	"suggest": {
 		"nette/forms": "Allows to use Nette Forms as filter forms for Datalist"
@@ -32,7 +34,12 @@
 		"phpcheck7": "phpcs -p ./src --standard=vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 7.4",
 		"phpcheck8": "phpcs -p ./src --standard=vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 8.1",
 		"tester": "tester tests/Tests/*.phpt  -c tests/php.ini --setup tests/setup.php",
-		"check-commit": "@php ./vendor/liquiddesign/codestyle/src/scripts/check-last-commit.php"
+		"check-commit": "@php ./vendor/liquiddesign/codestyle/src/scripts/check-last-commit.php",
+		"changelog": "conventional-changelog",
+		"release": "@changelog --commit",
+		"release:patch": "@changelog --patch --commit",
+		"release:minor": "@changelog --minor --commit",
+		"release:major": "@changelog --major --commit"
 	},
 	"config": {
 		"allow-plugins": {
